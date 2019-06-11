@@ -1,57 +1,65 @@
 'use strict';
 
-var CLOUD_WIDTH = 420;
-var CLOUD_HEIGHT = 270;
-var CLOUD_X = 100;
-var CLOUD_Y = 10;
-var GAP = 10;
+var CLOUD_WIDTH = 420; //ширина облака
+var CLOUD_HEIGHT = 270; //Высота облака
+var CLOUD_X = 100; //x-облака
+var CLOUD_Y = 10; //y-облака
+var GAP = 10; //отступ(small)
 var FONT_GAP = 15;
-var TEXT_WIDTH = 50;
-var BAR_HEIGHT = 20;
-var MAX_BAR_HEIGHT = 150;
-var BAR_WIDTH = 40;
-var barWidth = 40;
- // CLOUD_WIDTH - GAP - TEXT_WIDTH - GAP;
+var BAR_GAP = 50;//отступ между колонками
+var BAR_HEIGHT = 20; //высота колонки(?)
+var MAX_BAR_HEIGHT = 150;//макс.высота колонки
+var BAR_WIDTH = 40;//ширина колонки
+var barWidth = 40;//еще одна лол
 
-var renderCloud = function(ctx, x, y, color) {
-  ctx.fillStyle = color;
-  ctx.fillRect(x, y, CLOUD_WIDTH, CLOUD_HEIGHT);
+var renderCloud = function(ctx, x, y, color) {//создаем облако
+  ctx.fillStyle = color; //задаем цвет
+  ctx.fillRect(x, y, CLOUD_WIDTH, CLOUD_HEIGHT); //положение и размеры облака
 };
 
-var getMaxElement = function(arr) {
-  var maxElement = arr[0];
-
-  for (var i = 0; i < arr.length; i++) {
-    if (arr[i] > maxElement) {
-      maxElement = arr[i];
+var getMaxElement = function(arr) { //поиск максимального числа
+  var maxElement = arr[0];  // 1 элемент массива в переменную как самый большой
+  for (var i = 0; i < arr.length; i++) { //стнд.счетчик
+    if (arr[i] > maxElement) { // проверяем сравнениваем эл.мас. с усл.макс.числом
+      maxElement = arr[i]; //записываем самое большое число в переменную
     }
   }
-
-  return maxElement;
+  return maxElement; //сохраняем в переменную
 };
 
-// var renderDescription = function(ctx, x, y, color) {
-//   ctx.fillText('Ура вы победили!');
-//   ctx.fillText(' Список результатов:');
-// };
 
-window.renderStatistics = function(ctx, players, times) {
-  renderCloud(ctx, CLOUD_X + GAP, CLOUD_Y + GAP, 'rgba(0, 0, 0, 0.7)');
-  renderCloud(ctx, CLOUD_X, CLOUD_Y, '#fff');
-  ctx.fillStyle = '#000';
-  var maxTime = getMaxElement(times);
+window.renderStatistics = function(ctx, players, times) { //рисуем гистограмму
+  renderCloud(ctx, CLOUD_X + GAP, CLOUD_Y + GAP, 'rgba(0, 0, 0, 0.7)');//тень
+  renderCloud(ctx, CLOUD_X, CLOUD_Y, '#fff');//осн.окно
+  ctx.fillStyle = '#000';//цвет
+  var maxTime = getMaxElement(times);//перебор массива времени на самое большое число
+
+var offsetX = CLOUD_X + BAR_GAP; //нач.положение колонки
+var offsetY = CLOUD_Y + BAR_GAP + GAP * 3;
+
 
   for (var i = 0; i < players.length; i++) {
-    if(players[i] === 'Вы'){
-      ctx.fillStyle = 'red';
+    var player = players[i];//перебор игроков
+    var time = times[i]; //перебор времени
+
+
+    var x = offsetX + i * (BAR_WIDTH + BAR_GAP);// находим число, которое сдвинет колонку по X.
+    var height = (MAX_BAR_HEIGHT * Math.round(time))/ maxTime;//высота колонки.
+    var y = offsetY + MAX_BAR_HEIGHT - height; //положение колонки
+
+
+    if(players[i] === 'Вы'){//поиск себя
+      ctx.fillStyle = 'red'; //столбик в красный
     }
     else {
-      ctx.fillStyle = 'blue';
+      ctx.fillStyle = 'rgba(16, 40, 255, ' + (Math.random() * (1 - 0.1) + 0.1) + ')';// не себя в синий
     };
-    ctx.fillRect((CLOUD_X + GAP - TEXT_WIDTH) * i, CLOUD_Y + GAP + GAP + BAR_HEIGHT, BAR_WIDTH, (MAX_BAR_HEIGHT * times[i]) / maxTime);
-    ctx.fillStyle = '#000';
-    ctx.fillText(Math.floor(times[i]), CLOUD_X + GAP + (GAP + barWidth) * i, (MAX_BAR_HEIGHT * times[i]) / maxTime) + GAP;
-    ctx.fillText(players[i], CLOUD_X + GAP  + (GAP + barWidth) * i, CLOUD_HEIGHT - GAP);  //CLOUD_Y + GAP + FONT_GAP
+
+
+    ctx.fillRect(x, y, BAR_WIDTH, height);//рисуем гистограмму
+    ctx.fillStyle = '#000';//красим буквы
+    ctx.fillText(Math.floor(times[i]), x, y - GAP);
+    ctx.fillText(players[i], x, CLOUD_HEIGHT - GAP);  //CLOUD_Y + GAP + FONT_GAP
   };
 
   ctx.fillStyle = '#000';
